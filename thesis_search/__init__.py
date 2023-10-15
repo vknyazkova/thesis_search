@@ -85,6 +85,3 @@ def init_defaults() -> Tuple[DBHandler, Language, Dict[str, pd.DataFrame], Dict[
     }
     return db, fast_nlp, corpus, default_params, search_engines
 
-
-if __name__ == '__main__':
-    w2v = Word2VecSearch()

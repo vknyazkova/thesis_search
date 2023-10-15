@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block title %} Search {% endblock %}
+{% block external_css %}
+  <link href="../static/css/search.css" rel="stylesheet" />
+{% endblock %}
+
+
+{% block content %}
+  <div class="search-container5">
+    <h1 class="search-text2">Find Thesis.</h1>
+  </div>
+  <div class="search-container6">
+    <span class="search-text3">
+      Ищи, исследуй, вдохновляйся: поиск для тех, кто все еще не
+      придумал свой диплом :)
+    </span>
+  </div>
+  <div class="search-container7">
+    <div class="search-container8">
+      <form class="search-form" method="post" target="_blank" action="/result">
+        <input
+          type="text"
+          name="query"
+          multiple="query"
+          placeholder="введите запрос"
+          class="search-textinput input"
+        />
+        <select name="index" class="search-select Content">
+          <option value="bm25">bm25</option>
+          <option value="w2v">w2v</option>
+          <option value="fasttext">fasttext</option>
+        </select>
+        <button class="search-navlink2 button">Search</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}

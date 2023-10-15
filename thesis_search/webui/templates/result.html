@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block title %} Results {% endblock %}
+{% block external_css %}
+  <link href="../static/css/result.css" rel="stylesheet" />
+{% endblock %}
+
+{% block content %}
+  <div class="result-container05">
+    <div class="result-container06">
+      <h2 class="result-text02">Ваш запрос:</h2>
+    </div>
+    <div class="result-container07">
+      <span class="result-text03">{{ query }}</span>
+    </div>
+  </div>
+  <div class="result-container08">
+    <span class="result-text04">Найдено&nbsp;</span>
+    <span class="result-text05">{{ n_docs }}</span>
+    <span class="result-text06">документов за</span>
+    <span class="result-text07">{{ time }}</span>
+  </div>
+  <div class="result-container09">
+    <div class="result-container10">
+      <div class="result-container11">
+        {% for info in meta %}
+        <div class="result-container12">
+          <span class="result-text08">{{ info[0] }}:</span>
+          <span>{{ info[1] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="result-container13">
+        <span class="result-text10">Title:</span>
+        <span class="result-text11">{{ title }}</span>
+        <span class="result-text12">Annotation:</span>
+        <span class="result-text13">
+          {{ annotation }}
+        </span>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,13 +1,12 @@
 spacy
-pandas
-numpy
-tqdm
-scipy
-progressbar2
-fasttext-wheel
-gensim
 ru-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/ru_core_news_sm-3.5.0/ru_core_news_sm-3.5.0-py3-none-any.whl
-typer
-rich
-transformers
-torch
+pandas~=2.1.1
+numpy~=1.26.0
+tqdm~=4.66.1
+scipy~=1.11.3
+gensim~=4.3.2
+typer~=0.9.0
+rich~=13.6.0
+transformers~=4.34.0
+torch~=2.1.0
+flask~=3.0.0
