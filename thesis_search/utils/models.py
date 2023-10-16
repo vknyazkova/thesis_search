@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Iterable, Tuple, Dict
+import re
 
 import pandas as pd
 import progressbar
@@ -19,6 +20,21 @@ class Thesis:
     file: str = None
 
 
+def filter_texts(results: Iterable[Thesis], threshold: int = 100) -> Iterable[Thesis]:
+    """
+    Filters texts that have less than threshold length
+    :param results:
+    :param threshold:
+    :return:
+    """
+    clean_theses = []
+    for thesis in results:
+        if len(thesis.abstract) < threshold:
+            continue
+        clean_theses.append(thesis)
+    return clean_theses
+
+
 def preprocessing(text: str, nlp) -> str:
     """
     Удаляет пунктуацию, стоп-слова и числа, оставшееся лемматизирует
@@ -29,6 +45,7 @@ def preprocessing(text: str, nlp) -> str:
     Returns: лемматизированный текст
     """
     lemmatized = []
+    text = re.sub(r'\s+', ' ', text)
     for token in nlp(text):
         if not token.is_punct and not token.is_stop and not token.is_digit:
             lemmatized.append(token.lemma_.lower())
