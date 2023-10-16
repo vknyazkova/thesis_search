@@ -20,10 +20,11 @@
     <span class="result-text06">документов за</span>
     <span class="result-text07">{{ time }}</span>
   </div>
+  {% for res in results %}
   <div class="result-container09">
     <div class="result-container10">
       <div class="result-container11">
-        {% for info in meta %}
+        {% for info in res.meta %}
         <div class="result-container12">
           <span class="result-text08">{{ info[0] }}:</span>
           <span>{{ info[1] }}</span>
@@ -32,12 +33,13 @@
       </div>
       <div class="result-container13">
         <span class="result-text10">Title:</span>
-        <span class="result-text11">{{ title }}</span>
-        <span class="result-text12">Annotation:</span>
+        <span class="result-text11">{{ res.title }}</span>
+        <span class="result-text12">Abstract:</span>
         <span class="result-text13">
-          {{ annotation }}
+          {{ res.abstract }}
         </span>
       </div>
     </div>
   </div>
+  {% endfor %}
 {% endblock %}

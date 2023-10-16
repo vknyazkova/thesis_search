@@ -1,9 +1,14 @@
+from collections import namedtuple
+import time
+
 from flask import Flask, request, render_template
 
 from thesis_search import init_defaults
+from thesis_search.search import search_theses
 
 app = Flask(__name__)
 db, fast_nlp, corpus, default_params, search_engines = init_defaults()
+Result = namedtuple('Result', ['meta', 'title', 'abstract'])
 
 
 @app.route('/')
@@ -19,28 +24,30 @@ def search():
 @app.route('/result', methods=['POST', 'GET'])
 def results():
     if request.method == 'POST':
-        index = request.form['index']
+        idx_type = request.form['index']
         query = request.form['query']
-        print(index, query)
-        meta = [
-            ('year', 2022),
-            ('student', 'Гордеев Никита Владимирович')
-        ]
-        title = 'Автоматическое определение жанра песни по тексту и музыкальным метаданным: корпусное исследование'
-        annotation = ('Автоматическое определение музыкальных жанров композиций - одна из актуальнейших задач music '
-                      'information retrieval. Достижения в данной области широко используются в области музыкального '
-                      'стриминга: информация о жанрах часто применяется в рекомендательных системах, автоматическом '
-                      'составлении плейлистов. В данной работе предлагаются обученные на материалах двух корпусов '
-                      'модели, которые распознают музыкальные жанры англоязычных песен по их текстовому наполнению и '
-                      'характеризующих звучание метаданным.')
+        search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
+
+        start = time.time()
+        results = search_theses(query=query, nlp=fast_nlp, search_engine=search_engine,
+                                db=db, n=20)
+        exec_time = time.time() - start
+
+        formated_results = []
+        for res in results:
+            meta = [('year', res[1]),
+                    ('program', res[2]),
+                    ('student', res[3]),
+                    ('supervisor', res[4]),
+                    ('link', res[6])]
+            result = Result(meta=meta, title=res[0], abstract=res[5])
+            formated_results.append(result)
 
     return render_template("result.html",
                            query=query,
                            n_docs=1200,
-                           time='5мс',
-                           meta=meta,
-                           title=title,
-                           annotation=annotation)
+                           time=exec_time,
+                           results=formated_results)
 
 
 if __name__ == '__main__':
