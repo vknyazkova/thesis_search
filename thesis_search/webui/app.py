@@ -1,4 +1,3 @@
-from collections import namedtuple
 import time
 
 from flask import Flask, request, render_template
@@ -8,7 +7,12 @@ from thesis_search.search import search_theses
 
 app = Flask(__name__)
 db, fast_nlp, corpus, default_params, search_engines = init_defaults()
-Result = namedtuple('Result', ['meta', 'title', 'abstract'])
+
+initialized_search_engines = {idx: search_engines[idx](corpus=corpus[idx], **default_params[idx])
+                              for idx in search_engines}
+
+META = {'Year': 1, 'Program': 2, 'Student': 3, 'Supervisor': 4}
+N_RESULTS = 10
 
 
 @app.route('/')
@@ -26,28 +30,18 @@ def results():
     if request.method == 'POST':
         idx_type = request.form['index']
         query = request.form['query']
-        search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
 
         start = time.time()
-        results = search_theses(query=query, nlp=fast_nlp, search_engine=search_engine,
-                                db=db, n=20)
-        exec_time = time.time() - start
-
-        formated_results = []
-        for res in results:
-            meta = [('year', res[1]),
-                    ('program', res[2]),
-                    ('student', res[3]),
-                    ('supervisor', res[4]),
-                    ('link', res[6])]
-            result = Result(meta=meta, title=res[0], abstract=res[5])
-            formated_results.append(result)
+        results = search_theses(query=query, nlp=fast_nlp, search_engine=initialized_search_engines[idx_type],
+                                db=db, n=N_RESULTS)
+        exec_time = str(round(time.time() - start, 4)) + ' s'
 
     return render_template("result.html",
                            query=query,
-                           n_docs=1200,
+                           n_docs=N_RESULTS,
                            time=exec_time,
-                           results=formated_results)
+                           meta=META,
+                           results=results)
 
 
 if __name__ == '__main__':

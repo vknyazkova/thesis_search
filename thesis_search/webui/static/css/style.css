@@ -115,3 +115,7 @@
   text-transform: none;
   text-decoration: none;
 }
+
+td {
+  padding: var(--dl-space-space-halfunit);
+}
