@@ -11,7 +11,7 @@
       <h2 class="result-text02">Ваш запрос:</h2>
     </div>
     <div class="result-container07">
-      <span class="result-text03">{{ query }}</span>
+      <span class="result-text03">{{ query }}, {{ idx_type }}</span>
     </div>
   </div>
   <div class="result-container08">
@@ -24,6 +24,14 @@
   <div class="result-container09">
     {% for res in results %}
     <div class="result-container10">
+      <div class="result-container13">
+        <span class="result-text10">Title:</span>
+        <span class="result-text11">{{ res[0] }}</span>
+        <span class="result-text12">Abstract:</span>
+        <span class="result-text13">
+          {{ res[5] }}
+        </span>
+      </div>
       <div class="result-container11">
         <table>
           <tbody>
@@ -41,14 +49,6 @@
           {% endif %}
           </tbody>
         </table>
-      </div>
-      <div class="result-container13">
-        <span class="result-text10">Title:</span>
-        <span class="result-text11">{{ res[0] }}</span>
-        <span class="result-text12">Abstract:</span>
-        <span class="result-text13">
-          {{ res[5] }}
-        </span>
       </div>
     </div>
     {% endfor %}

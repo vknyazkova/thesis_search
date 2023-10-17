@@ -36,12 +36,14 @@ def results():
                                 db=db, n=N_RESULTS)
         exec_time = str(round(time.time() - start, 4)) + ' s'
 
-    return render_template("result.html",
-                           query=query,
-                           n_docs=N_RESULTS,
-                           time=exec_time,
-                           meta=META,
-                           results=results)
+        return render_template("result.html",
+                               query=query,
+                               idx_type=idx_type,
+                               n_docs=N_RESULTS,
+                               time=exec_time,
+                               meta=META,
+                               results=results)
+    return render_template('index.html')
 
 
 if __name__ == '__main__':
