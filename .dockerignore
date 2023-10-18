@@ -28,3 +28,6 @@ venv.bak/
 
 *.bin
 
+scripts/
+
+data/
