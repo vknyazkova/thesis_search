@@ -2,7 +2,7 @@ from typing import Tuple, List, Callable
 
 from thesis_search.search_models.base.search_engine import SearchEngine
 from thesis_search.utils.database import DBHandler
-from thesis_search.utils.models import pprint_result
+from thesis_search.utils.models import pprint_result, QueryError
 from thesis_search import download_models, init_defaults
 from thesis_search.config import DEFAULT_LMS, LM_PATH, INDEX_TYPES
 
@@ -28,6 +28,8 @@ def search_theses(
 
     """
     lemmatized_query = preprocess(query)
+    if not lemmatized_query:
+        raise QueryError('Query has no content words. Please change your query to something more meaningful :(')
     found_documents = search_engine.rank_documents(lemmatized_query, n)
     results = [db.get_thesis_info(i) for i in found_documents]
     return results
@@ -35,7 +37,7 @@ def search_theses(
 
 if __name__ == '__main__':
 
-    db, fast_nlp, corpus, default_params, search_engines = init_defaults()
+    db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
     download_models(LM_PATH, DEFAULT_LMS, search_engines)
 
     ch = 1
@@ -49,7 +51,7 @@ if __name__ == '__main__':
 
         search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
 
-        results = search_theses(query=query, nlp=fast_nlp, search_engine=search_engine,
+        results = search_theses(query=query, preprocess=preprocess[idx_type], search_engine=search_engine,
                                 db=db, n=n)
         pprint_result(results)
 

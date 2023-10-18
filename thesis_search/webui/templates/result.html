@@ -14,14 +14,19 @@
       <span class="result-text03">{{ query }}, {{ idx_type }}</span>
     </div>
   </div>
+  {% if n_docs and time %}
   <div class="result-container08">
     <span class="result-text04">Найдено&nbsp;</span>
     <span class="result-text05">{{ n_docs }}</span>
     <span class="result-text06">документов за</span>
     <span class="result-text07">{{ time }}</span>
   </div>
+  {% endif %}
 
   <div class="result-container09">
+    {% if error %}
+    <p style="color: #E14747">{{ error }}</p>
+    {% endif %}
     {% for res in results %}
     <div class="result-container10">
       <div class="result-container13">

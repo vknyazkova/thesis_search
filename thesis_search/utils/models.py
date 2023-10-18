@@ -128,3 +128,11 @@ def pandas_to_rich_table(df: pd.DataFrame):
     for index, row in df.iterrows():
         table.add_row(index, *row.values)
     return table
+
+
+class QueryError(Exception):
+    def __init__(self, message):
+        self.message = message
+
+    def __str__(self):
+        return self.message
