@@ -7,19 +7,89 @@
 
 
 {% block content %}
-  <div class="home-container5">
-    <h1 class="home-text2">Find Thesis.</h1>
+  <div class="home-container05">
+    <h1 class="home-text02">Find Thesis.</h1>
   </div>
-  <div class="home-container6">
-    <span class="home-text3">
+  <div class="home-container06">
+    <span class="home-text03">
       Ищи, исследуй, вдохновляйся: поиск для тех, кто все еще не
       придумал свой диплом :)
     </span>
   </div>
-  <div class="home-container7"></div>
-  <div class="home-container8">
+  <div class="home-container07">
+    <div class="home-container08">
+      <h2 class="home-text04">О корпусе</h2>
+      <span class="home-text05">
+        <span>
+          Корпус состоит из аннотаций к ВКР студентов ВШЭ трех
+          образовательных программ:
+        </span>
+        <span>Фундаментальная и компьютерная лингвистика, </span>
+        <span>Прикладная математика и информатика, </span>
+        <span>Программная инженерия.</span>
+        <br />
+        <br />
+        <span>
+          Помимо текстов самих аннотаций корпус так же содержит и доступную
+          метаинформацию: год работы, студент/ка, научный руководители,
+          образовательная программа и ссылка на скачивание работы (если
+          есть).
+        </span>
+        <br />
+        <br />
+        <span>
+          Все аннотации хрнятся на сайте НИУ ВШЭ в открытом доступе и были
+          собараны посредством веб-краулера.
+        </span>
+        <br />
+      </span>
+    </div>
+    <div class="home-container09">
+      <h2 class="home-text17">Об индексации</h2>
+      <span class="home-text18">
+        <span>
+          Тексты в корпусе проиндексированы при помощи 4х методов:
+        </span>
+        <br />
+      </span>
+      <ul class="home-ul list">
+        <li class="home-li list-item">
+          <span class="home-text21">bm25</span>
+          <span>- на основе формулы Okapi BM25, c k = 2 и b = 0.75</span>
+        </li>
+        <li class="home-li1 list-item">
+          <span class="home-text23">word2vec</span>
+          <span>
+            - на основе статических эмбеддингов
+            ruwikiruscorpora_upos_cbow_300_10_2021
+          </span>
+        </li>
+        <li class="home-li2 list-item">
+          <span class="home-text25">fasttext</span>
+          <span>
+            - на основе предобученной модели фасттекст - cc.ru.300 (может
+            работать с oov-словами)
+          </span>
+        </li>
+        <li class="home-li3 list-item">
+          <span class="home-text27">bert</span>
+          <span>
+            - на основе контекстуализированных эмбеддингов, генерируемых
+            моделью-трансформером sbert_large_nlu_ru
+          </span>
+        </li>
+      </ul>
+      <span class="home-text29">
+        Все векторные модели векторизуют документ как среднее эмбеддингов
+        слов, входящих в него, а ранжирование документов по релевантности к
+        запросу делается на основе косинусной близости.
+      </span>
+    </div>
+  </div>
+  <div class="home-container10">
     <a href="/search" class="home-navlink2 button">
       Перейти к поиску
     </a>
   </div>
+
 {% endblock %}
