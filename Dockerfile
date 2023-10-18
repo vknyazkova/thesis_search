@@ -7,9 +7,11 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 
 # add all repo
-COPY ./ .
+COPY . .
 
 VOLUME ["/usr/src/thesis_search"]
 CMD ["python", "-m", "thesis_search.webui.app"]
 
-EXPOSE 8080
+EXPOSE 5000
+
+
