@@ -5,6 +5,7 @@ import re
 import pandas as pd
 import progressbar
 from rich.table import Table
+from spacy.language import Language
 
 
 @dataclass
@@ -35,7 +36,7 @@ def filter_texts(results: Iterable[Thesis], threshold: int = 100) -> Iterable[Th
     return clean_theses
 
 
-def preprocessing(text: str, nlp) -> str:
+def preprocessing(text: str, nlp: Language) -> str:
     """
     Удаляет пунктуацию, стоп-слова и числа, оставшееся лемматизирует
     Args:

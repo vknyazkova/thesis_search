@@ -7,6 +7,7 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 import numpy as np
 from tqdm import tqdm
+from spacy.language import Language
 
 from thesis_search.search_models.base.embedding_search import EmbeddingSearch
 
@@ -14,7 +15,7 @@ from thesis_search.search_models.base.embedding_search import EmbeddingSearch
 class BertIndex(EmbeddingSearch):
     def __init__(self,
                  corpus: pd.DataFrame,
-                 nlp,
+                 nlp: Language,
                  model_name: str,
                  model_path: str,
                  index_folder: Union[os.PathLike, str],
