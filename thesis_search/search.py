@@ -1,17 +1,15 @@
-from typing import Tuple, List
-
-from spacy.language import Language
+from typing import Tuple, List, Callable
 
 from thesis_search.search_models.base.search_engine import SearchEngine
 from thesis_search.utils.database import DBHandler
-from thesis_search.utils.models import preprocessing, pprint_result
+from thesis_search.utils.models import pprint_result
 from thesis_search import download_models, init_defaults
 from thesis_search.config import DEFAULT_LMS, LM_PATH, INDEX_TYPES
 
 
 def search_theses(
         query: str,
-        nlp: Language,
+        preprocess: Callable,
         search_engine: SearchEngine,
         db: DBHandler,
         n: int
@@ -20,7 +18,7 @@ def search_theses(
     Searches query in database documents
     Args:
         query: query string
-        nlp: spacy language pipeline
+        preprocess: callable to preprocess query
         search_engine: search class instance
         db: database class instance
         n: number of relevant documents in search results
@@ -29,7 +27,7 @@ def search_theses(
     annotation and link
 
     """
-    lemmatized_query = preprocessing(query, nlp)
+    lemmatized_query = preprocess(query)
     found_documents = search_engine.rank_documents(lemmatized_query, n)
     results = [db.get_thesis_info(i) for i in found_documents]
     return results

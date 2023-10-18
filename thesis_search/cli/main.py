@@ -13,7 +13,7 @@ from thesis_search import download_models, init_defaults
 app = typer.Typer()
 console = Console()
 
-db, fast_nlp, corpus, default_params, search_engines = init_defaults()
+db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
 
 
 @app.command(help='Ищет документы в корпусе по запросу')
@@ -39,7 +39,7 @@ def search(query: str,
     except FileNotFoundError:
         raise FileNotFoundError(f'Модель для этого способа индексации еще не скачена. Запустите команду '
                                 f'"python -m thesis_search download {idx_type}", а потом попробуйте еще раз')
-    results = search_theses(query=query, nlp=fast_nlp, search_engine=search_engine, db=db, n=n)
+    results = search_theses(query=query, preprocess=preprocess[idx_type], search_engine=search_engine, db=db, n=n)
 
     if style == 'table':
         for result in results:

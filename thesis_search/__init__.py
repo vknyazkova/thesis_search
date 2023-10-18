@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
-from typing import Union, Dict, Any, Tuple
+from functools import partial
+from typing import Union, Dict, Any, Tuple, Callable
 
 import pandas as pd
 import spacy
@@ -12,6 +13,7 @@ from .search_models.indexing.fasttext_index import FastTextSearch
 from .search_models.indexing.word2vec_index import Word2VecSearch
 from .search_models.indexing.bert_index import BertIndex
 from .utils.database import DBHandler
+from .utils.models import preprocessing
 
 
 def download_models(model_folder: Union[str, os.PathLike],
@@ -36,7 +38,12 @@ def download_models(model_folder: Union[str, os.PathLike],
             search_engines[model].download_model(models_info[model]['source_link'], filepath)
 
 
-def init_defaults() -> Tuple[DBHandler, Language, Dict[str, pd.DataFrame], Dict[str, Dict[str, Any]], Dict[str, type]]:
+def init_defaults() -> Tuple[DBHandler,
+                            Language,
+                            Dict[str, pd.DataFrame],
+                            Dict[str, Dict[str, Any]],
+                            Dict[str, type],
+                            Dict[str, Callable]]:
     """
     Initializes needed objects with defaults
     Returns:
@@ -83,5 +90,11 @@ def init_defaults() -> Tuple[DBHandler, Language, Dict[str, pd.DataFrame], Dict[
         'ft': FastTextSearch,
         'bert': BertIndex
     }
-    return db, fast_nlp, corpus, default_params, search_engines
+    preprocessings = {
+        'bm25': partial(preprocessing, nlp=fast_nlp),
+        'w2v': partial(preprocessing, nlp=fast_nlp),
+        'ft': partial(preprocessing, nlp=fast_nlp),
+        'bert': lambda x: x,
+    }
 
+    return db, fast_nlp, corpus, default_params, search_engines, preprocessings

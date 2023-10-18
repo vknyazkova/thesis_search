@@ -6,7 +6,7 @@ from thesis_search import init_defaults
 from thesis_search.search import search_theses
 
 app = Flask(__name__)
-db, fast_nlp, corpus, default_params, search_engines = init_defaults()
+db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
 
 META = {'Year': 1, 'Program': 2, 'Student': 3, 'Supervisor': 4}
 N_RESULTS = 10
@@ -30,7 +30,7 @@ def results():
         search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
 
         start = time.time()
-        results = search_theses(query=query, nlp=fast_nlp, search_engine=search_engine,
+        results = search_theses(query=query, preprocess=preprocess[idx_type], search_engine=search_engine,
                                                         db=db, n=N_RESULTS)
         exec_time = str(round(time.time() - start, 4)) + ' s'
 
