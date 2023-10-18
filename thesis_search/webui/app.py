@@ -27,9 +27,9 @@ def results():
     if request.method == 'POST':
         idx_type = request.form['index']
         query = request.form['query']
-        search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
 
         start = time.time()
+        search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
         results = search_theses(query=query, preprocess=preprocess[idx_type], search_engine=search_engine,
                                                         db=db, n=N_RESULTS)
         exec_time = str(round(time.time() - start, 4)) + ' s'
