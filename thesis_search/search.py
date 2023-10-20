@@ -3,8 +3,8 @@ from typing import Tuple, List, Callable
 from thesis_search.search_models.base.search_engine import SearchEngine
 from thesis_search.utils.database import DBHandler
 from thesis_search.utils.models import pprint_result, QueryError
-from thesis_search import download_models, init_defaults
-from thesis_search.config import DEFAULT_LMS, LM_PATH, INDEX_TYPES
+from thesis_search.utils.utils import download_models, init_defaults
+from thesis_search import INDEX_TYPES, DEFAULT_LMS, LM_PATH
 
 
 def search_theses(
@@ -38,16 +38,16 @@ def search_theses(
 if __name__ == '__main__':
 
     db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
-    download_models(LM_PATH, DEFAULT_LMS, search_engines)
+    # download_models(LM_PATH, DEFAULT_LMS, search_engines)
 
     ch = 1
     while ch == 1:
-        idx_type = input(f'Выберите способ индексирования {INDEX_TYPES} : ')
+        idx_type = input(f'Выберите способ индексирования {list(INDEX_TYPES.keys())} : ')
         query = input('Введите ваш запрос: ')
         n = int(input('Количество документов в выдаче: '))
 
         if idx_type not in INDEX_TYPES:
-            raise ValueError(f'Index type can be only one of those {INDEX_TYPES}')
+            raise ValueError(f'Index type can be only one of those {list(INDEX_TYPES.keys())}')
 
         search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
 

@@ -4,11 +4,11 @@ from pathlib import Path
 import pandas as pd
 from rich.console import Console
 
-from ..config import DATA_FOLDER_PATH, LM_PATH, DEFAULT_LMS, INDEX_TYPES
+from .. import DATA_FOLDER_PATH, LM_PATH, DEFAULT_LMS
 from ..search import search_theses
 from ..utils.models import pprint_result, pretty_table, pandas_to_rich_table, table_config
-from thesis_search import download_models, init_defaults
-
+from thesis_search.utils.utils import download_models, init_defaults
+from thesis_search import INDEX_TYPES
 
 app = typer.Typer()
 console = Console()
@@ -20,7 +20,7 @@ db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults
 def search(query: str,
            idx_type: str = typer.Option(
                default='bm25',
-               help=f"Способ индексирования {INDEX_TYPES}"
+               help=f"Способ индексирования {list(INDEX_TYPES.keys())}"
            ),
            n: int = typer.Option(
                default=1,
@@ -32,7 +32,7 @@ def search(query: str,
            )):
 
     if idx_type not in INDEX_TYPES:
-        raise ValueError(f'Index type can be only one of those {INDEX_TYPES}')
+        raise ValueError(f'Index type can be only one of those {list(INDEX_TYPES.keys())}')
 
     try:
         search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])

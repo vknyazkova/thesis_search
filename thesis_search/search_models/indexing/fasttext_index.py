@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from ..base.embedding_search import EmbeddingSearch
 from ...utils.models import MyProgressBar
-from ...config import HOME_PATH
+from ... import HOME_PATH
 
 
 class FastTextSearch(EmbeddingSearch):

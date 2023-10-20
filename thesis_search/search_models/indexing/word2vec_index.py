@@ -12,7 +12,7 @@ from tqdm import tqdm
 from spacy.language import Language
 
 from ..base.embedding_search import EmbeddingSearch
-from ...config import HOME_PATH
+from ... import HOME_PATH
 from ...utils.models import MyProgressBar
 
 
