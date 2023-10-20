@@ -8,7 +8,7 @@ from .search_engine import SearchEngine
 
 class DictSearch(SearchEngine):
     """
-    (абстрактный) класс для поиска при помощи словаря
+    Поиск при помощи частотного индекса
     """
     def __init__(self, corpus: pd.DataFrame):
         super().__init__(corpus)

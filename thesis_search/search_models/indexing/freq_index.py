@@ -11,7 +11,7 @@ from ..base.matrix_search import MatrixSearch
 
 class CountVectSearch(SearchEngine):
     """
-    Класс для поиска по частотному индексу, реализованному, через CountVectorizer
+    Частотный индекс, реализованный через CountVectorizer
     """
     def __init__(self, corpus: pd.DataFrame):
         super().__init__(corpus)
@@ -30,7 +30,7 @@ class CountVectSearch(SearchEngine):
 
 
 class FreqDict(DictSearch):
-    """Класс для поиска при помощи частотного словаря"""
+    """Частотный индекс через словарь"""
     def __init__(self, corpus: pd.DataFrame):
         super().__init__(corpus)
         self.index = self._compute_index(self.text.tolist(), self.doc_idx)
@@ -45,7 +45,7 @@ class FreqDict(DictSearch):
 
 
 class FreqMatrix(MatrixSearch):
-    """Класс для поиска по частотному индексу через матрицы"""
+    """Частотный индекс через матрицы"""
     def __init__(self, corpus: pd.DataFrame):
         super().__init__(corpus)
         self._index, self._vocabulary = self.extract_features(self.text)
