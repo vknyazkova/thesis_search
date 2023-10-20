@@ -13,6 +13,7 @@ from tqdm import tqdm
 
 from ..base.embedding_search import EmbeddingSearch
 from ...utils.models import MyProgressBar
+from ...config import HOME_PATH
 
 
 class FastTextSearch(EmbeddingSearch):
@@ -47,7 +48,10 @@ class FastTextSearch(EmbeddingSearch):
     @staticmethod
     def download_model(url: str, dest_path: Union[os.PathLike, str]) -> Union[str, os.PathLike]:
         print(f'Скачиваю модель {url}')
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        dest_path = Path(dest_path)
+        dest_folder = dest_path.parent
+        dest_folder.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(dir=str(HOME_PATH)) as tmpdirname:
             gz_path, _ = urllib.request.urlretrieve(url, Path(tmpdirname, 'model.gz'),
                                                     reporthook=MyProgressBar())
             with gzip.open(gz_path, 'rb') as f_in:

@@ -83,6 +83,7 @@ def download(model_type: str = typer.Argument(..., help='Какая модель
     else:
         filename = Path(source_link).with_suffix('.bin')
     models_info = {model_type: {'file': filename, 'source_link': source_link}}
+
     download_models(LM_PATH, models_info, search_engines)
 
 

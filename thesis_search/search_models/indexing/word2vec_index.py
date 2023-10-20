@@ -12,6 +12,7 @@ from tqdm import tqdm
 from spacy.language import Language
 
 from ..base.embedding_search import EmbeddingSearch
+from ...config import HOME_PATH
 from ...utils.models import MyProgressBar
 
 
@@ -61,7 +62,7 @@ class Word2VecSearch(EmbeddingSearch):
         dest_folder = dest_path.parent
         dest_folder.mkdir(parents=True, exist_ok=True)
 
-        with tempfile.TemporaryDirectory() as tmpdirname:
+        with tempfile.TemporaryDirectory(dir=str(HOME_PATH)) as tmpdirname:
             zip_path, _ = urllib.request.urlretrieve(url, Path(tmpdirname, 'model.zip'),
                                                      reporthook=MyProgressBar())
             with zipfile.ZipFile(zip_path, 'r') as zip_ref:
