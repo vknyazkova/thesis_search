@@ -1,23 +1,20 @@
 import os
+import re
 from functools import partial
 from pathlib import Path
-from typing import Union, Dict, Any, Tuple, Callable
+from typing import Union, Dict, Any, Tuple, Callable, Iterable
 
 import pandas as pd
 import spacy
 from spacy import Language
 
-from .. import DATA_FOLDER_PATH, LM_PATH, DEFAULT_LMS, INDEX_PATH
-from ..search_models.indexing.bert_index import BertIndex
-from ..search_models.indexing.bm25_matrix import BM25Matrices
-from ..search_models.indexing.fasttext_index import FastTextSearch
-from ..search_models.indexing.word2vec_index import Word2VecSearch
+from .models import Thesis
+from .. import DATA_FOLDER_PATH, INDEX_PATH, MODEL_DEFAULT_PARAMS
+from ..search_models import BertIndex, BM25Matrices, FastTextSearch, Word2VecSearch
 from ..utils.database import DBHandler
-from ..utils.models import preprocessing
 
 
-def download_models(model_folder: Union[str, os.PathLike],
-                    models_info: Dict[str, Dict[str, str]],
+def download_models(models_info: Dict[str, Dict[Path, str]],
                     search_engines: Dict[str, Any]):
     """
     Скачивает модели в папку model_folder
@@ -25,7 +22,7 @@ def download_models(model_folder: Union[str, os.PathLike],
         model_folder: папка, где будут храниться модели
         models_info: словарь вида {model_type: {'file': filename, 'source_link': link}}
             model_type - тип модели - w2v, ft
-            filename - название файла с моделью
+            filename - путь к модели
             link - ссылка на скачивание модели
         search_engines: словарь с классами для поиска
 
@@ -33,7 +30,7 @@ def download_models(model_folder: Union[str, os.PathLike],
 
     """
     for model in models_info:
-        filepath = Path(model_folder, models_info[model]['file'])
+        filepath = models_info[model]['file']
         if not filepath.exists():
             search_engines[model].download_model(models_info[model]['source_link'], filepath)
 
@@ -67,21 +64,22 @@ def init_defaults() -> Tuple[DBHandler,
     }
 
     default_params = {
-        'bm25': {'k': 2, 'b': 0.75},
-        'w2v': {'nlp': fast_nlp,
-                'model_path': Path(LM_PATH, DEFAULT_LMS['w2v']['file']),
-                'model_name': Path(DEFAULT_LMS['w2v']['file']).stem,
-                'index_folder': INDEX_PATH,
-                'similarity_metric': 'cosine'},
-        'ft': {'model_path': Path(LM_PATH, DEFAULT_LMS['ft']['file']),
-               'model_name': Path(DEFAULT_LMS['ft']['file']).stem,
-               'index_folder': INDEX_PATH,
-               'similarity_metric': 'cosine'},
-        'bert': {'nlp': fast_nlp,
-                 'model_name': 'sbert_large_nlu_ru',
-                 'model_path': 'ai-forever/sbert_large_nlu_ru',
-                 'index_folder': INDEX_PATH,
-                 'similarity_metric': 'cosine'}
+        'bm25': {'k': MODEL_DEFAULT_PARAMS['bm25']['k'],
+                 'b': MODEL_DEFAULT_PARAMS['bm25']['b']},
+        'w2v': {'nlp_': fast_nlp,
+                'model_path': MODEL_DEFAULT_PARAMS['w2v']['file'],
+                'model_name_': MODEL_DEFAULT_PARAMS['w2v']['file'].stem,
+                'index_folder_': INDEX_PATH,
+                'similarity_metric': MODEL_DEFAULT_PARAMS['w2v']['similarity_metric']},
+        'ft': {'model_path': MODEL_DEFAULT_PARAMS['ft']['file'],
+               'model_name_': MODEL_DEFAULT_PARAMS['ft']['file'].stem,
+               'index_folder_': INDEX_PATH,
+               'similarity_metric': MODEL_DEFAULT_PARAMS['w2v']['similarity_metric']},
+        'bert': {'nlp_': fast_nlp,
+                 'model_name': MODEL_DEFAULT_PARAMS['bert']['model_name'],
+                 'model_path': MODEL_DEFAULT_PARAMS['bert']['model_path'],
+                 'index_folder_': INDEX_PATH,
+                 'similarity_metric': MODEL_DEFAULT_PARAMS['bert']['similarity_metric']}
     }
 
     search_engines = {
@@ -98,3 +96,71 @@ def init_defaults() -> Tuple[DBHandler,
     }
 
     return db, fast_nlp, corpus, default_params, search_engines, preprocessings
+
+
+def filter_texts(results: Iterable[Thesis], threshold: int = 100) -> Iterable[Thesis]:
+    """
+    Filters texts that have less than threshold length
+    :param results:
+    :param threshold:
+    :return:
+    """
+    clean_theses = []
+    for thesis in results:
+        if len(thesis.abstract) < threshold:
+            continue
+        clean_theses.append(thesis)
+    return clean_theses
+
+
+def preprocessing(text: str, nlp: Language) -> str:
+    """
+    Удаляет пунктуацию, стоп-слова и числа, оставшееся лемматизирует
+    Args:
+        text: строка текста
+        nlp: spacy nlp object
+
+    Returns: лемматизированный текст
+    """
+    lemmatized = []
+    text = re.sub(r'\s+', ' ', text)
+    for token in nlp(text):
+        if not token.is_punct and not token.is_stop and not token.is_digit:
+            lemmatized.append(token.lemma_.lower())
+    return ' '.join(lemmatized)
+
+
+def short_lines_generator(text):
+    max_len = 79
+    tokens = text.split()
+    length = 0
+    line_start = 0
+    for i, token in enumerate(tokens):
+        if length + len(token) > max_len:
+            line = ' '.join(tokens[line_start: i])
+            yield line
+            length = 0
+            line_start = i
+        length += len(token)
+
+    if line_start != i:
+        line = ' '.join(tokens[line_start:])
+        yield line
+
+
+def pprint_result(results: Iterable[tuple]):
+    print('-' * 79)
+    for result in results:
+        print(f"название:\t{result[0]}\nгод:\t{result[1]}\nобразовательная программа:\t{result[2]}\n"
+              f"студент:\t{result[3]}\nнаучный руководитель:\t{result[4]}")
+        print("описание:", end="\t")
+        try:
+            for line in short_lines_generator(result[5]):
+                print(line)
+        except UnboundLocalError:
+            print(result[5])
+        if result[6]:
+            print(f'ссылка на скачивание:\t{result[6]}')
+        print('-' * 79)
+
+

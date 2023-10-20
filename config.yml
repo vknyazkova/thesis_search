@@ -1,5 +1,4 @@
 # paths relative to project folder or absolute
-
 folders:
   data_folder: './data'
   index_folder: './data/indices'
@@ -11,10 +10,19 @@ index_types:
   ft: fasttext
   bert: bert
 
-default_vector_models:
+models_defaults:
+  bm25:
+    k: 2
+    b: 0.75
   w2v:
     file: 'ruwikiruscorpora_upos_cbow_300_10_2021.bin'
     source_link: 'http://vectors.nlpl.eu/repository/20/220.zip'
+    similarity_metric: cosine
   ft:
     file: 'cc.ru.300.bin'
     source_link: 'https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.ru.300.bin.gz'
+    similarity_metric: cosine
+  bert:
+    model_name: sbert_large_nlu_ru
+    model_path: ai-forever/sbert_large_nlu_ru
+    similarity_metric: cosine

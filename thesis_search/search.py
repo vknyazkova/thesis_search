@@ -2,9 +2,9 @@ from typing import Tuple, List, Callable
 
 from thesis_search.search_models.base.search_engine import SearchEngine
 from thesis_search.utils.database import DBHandler
-from thesis_search.utils.models import pprint_result, QueryError
-from thesis_search.utils.utils import download_models, init_defaults
-from thesis_search import INDEX_TYPES, DEFAULT_LMS, LM_PATH
+from thesis_search.utils.models import QueryError
+from thesis_search.utils.utils import download_models, init_defaults, pprint_result
+from thesis_search import INDEX_TYPES, MODEL_DEFAULT_PARAMS
 
 
 def search_theses(
@@ -38,7 +38,8 @@ def search_theses(
 if __name__ == '__main__':
 
     db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
-    # download_models(LM_PATH, DEFAULT_LMS, search_engines)
+    static_vector_models = {m: MODEL_DEFAULT_PARAMS[m] for m in MODEL_DEFAULT_PARAMS if MODEL_DEFAULT_PARAMS[m].get('source_link')}
+    download_models(static_vector_models, search_engines)
 
     ch = 1
     while ch == 1:
@@ -47,7 +48,7 @@ if __name__ == '__main__':
         n = int(input('Количество документов в выдаче: '))
 
         if idx_type not in INDEX_TYPES:
-            raise ValueError(f'Index type can be only one of those {list(INDEX_TYPES.keys())}')
+            raise ValueError(f'Index type can be only one of those {list(INDEX_TYPES.keys())}, but you entered {idx_type}')
 
         search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
 

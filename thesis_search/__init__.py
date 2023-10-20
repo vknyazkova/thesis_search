@@ -4,7 +4,6 @@ import yaml
 
 
 HOME_PATH = Path(__file__).resolve().parent.parent
-
 with open(Path(HOME_PATH, 'config.yml'), 'r') as file:
     config = yaml.safe_load(file)
 
@@ -18,9 +17,13 @@ DATA_FOLDER_PATH = config['folders']['data_folder']
 INDEX_PATH = config['folders']['index_folder']
 LM_PATH = config['folders']['lm_folder']
 
-DEFAULT_LMS = config['default_vector_models']
-
 INDEX_TYPES = config['index_types']
 
-if __name__ == '__main__':
-    ...
+MODEL_DEFAULT_PARAMS = config['models_defaults']
+for m in ['w2v', 'ft']:
+    if not Path(MODEL_DEFAULT_PARAMS[m]['file']).is_absolute():
+        MODEL_DEFAULT_PARAMS[m]['file'] = Path(LM_PATH, MODEL_DEFAULT_PARAMS[m]['file']).resolve()
+    else:
+        MODEL_DEFAULT_PARAMS[m]['file'] = Path(MODEL_DEFAULT_PARAMS[m]['file'])
+
+

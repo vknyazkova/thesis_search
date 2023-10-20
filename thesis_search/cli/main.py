@@ -4,11 +4,10 @@ from pathlib import Path
 import pandas as pd
 from rich.console import Console
 
-from .. import DATA_FOLDER_PATH, LM_PATH, DEFAULT_LMS
+from .. import DATA_FOLDER_PATH, LM_PATH, INDEX_TYPES, MODEL_DEFAULT_PARAMS
 from ..search import search_theses
-from ..utils.models import pprint_result, pretty_table, pandas_to_rich_table, table_config
-from thesis_search.utils.utils import download_models, init_defaults
-from thesis_search import INDEX_TYPES
+from ..utils.utils import download_models, init_defaults, pprint_result
+from .cli_utils import pretty_table, table_config, pandas_to_rich_table
 
 app = typer.Typer()
 console = Console()
@@ -69,17 +68,22 @@ def show_config():
     for t in tables:
         console.print(t)
 
+@app.command(help="Изменение дефолтных конфигураций")
+def change_config():
+    ...
+
 
 @app.command(help="Скачивает векторную модель модель")
 def download(model_type: str = typer.Argument(..., help='Какая модель - w2v или ft'),
              source_link: str = typer.Option(default=None,
                                              help='Ссылка на скачивание модели, если нет, то скачается дефолтная')):
-    if model_type not in DEFAULT_LMS:
-        raise ValueError(f'Can work only with {list(DEFAULT_LMS.keys())}')
+    static_vector_models = [m for m in MODEL_DEFAULT_PARAMS if MODEL_DEFAULT_PARAMS[m].get('source_link')]
+    if model_type not in static_vector_models:
+        raise ValueError(f'Can work only with {static_vector_models}')
 
     if not source_link:
-        source_link = DEFAULT_LMS[model_type]['source_link']
-        filename = DEFAULT_LMS[model_type]['file']
+        source_link = MODEL_DEFAULT_PARAMS[model_type]['source_link']
+        filename = MODEL_DEFAULT_PARAMS[model_type]['file']
     else:
         filename = Path(source_link).with_suffix('.bin')
     models_info = {model_type: {'file': filename, 'source_link': source_link}}

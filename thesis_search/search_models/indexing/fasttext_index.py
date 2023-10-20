@@ -20,25 +20,25 @@ class FastTextSearch(EmbeddingSearch):
 
     def __init__(self,
                  corpus: pd.DataFrame,
-                 model_name: str,
+                 model_name_: str,
                  model_path: Union[str, os.PathLike],
-                 index_folder: Union[str, os.PathLike],
+                 index_folder_: Union[str, os.PathLike],
                  similarity_metric='cosine'):
         """
         Class that implements search based on fasttext language model
         Args:
             corpus: pandas dataframe with two columns: text ids and texts themselves
-            model_name: string with model name (ex.:  'cc.ru.300.bin')
+            model_name_: string with model name (ex.:  'cc.ru.300.bin')
             model_path: path to vector model file
-            index_folder: folder where precomputed index should be stored
+            index_folder_: folder where precomputed index should be stored
             similarity_metric: either 'cosine' or 'dot-prod'
         """
-        super().__init__(corpus, model_name, similarity_metric)
+        super().__init__(corpus, model_name_, similarity_metric)
 
         self.model_path = model_path
         self.register_model()
 
-        index_path = Path(index_folder, f'{self.model_name}_index.txt').resolve()
+        index_path = Path(index_folder_, f'{self.model_name}_index.txt').resolve()
         if not Path(index_path).exists():
             self.index = self.compute_index()
             self.save_index(index_path)
