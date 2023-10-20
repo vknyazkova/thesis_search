@@ -26,3 +26,4 @@ models_defaults:
     model_name: sbert_large_nlu_ru
     model_path: ai-forever/sbert_large_nlu_ru
     similarity_metric: cosine
+

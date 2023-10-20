@@ -15,8 +15,6 @@ class SearchEngine:
             corpus: датафрейм с двумя столбцами - индекс документа и текст
         """
         self.doc_idx, self.text = [corpus[col] for col in corpus.columns]
-        # self.doc_idx = corpus['id']
-        # self.text = corpus['lemmatized']
 
     @abstractmethod
     def rank_documents(self, lemmatized_query: str, top_n: int) -> Iterable[int]:

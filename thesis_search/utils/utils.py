@@ -14,12 +14,11 @@ from ..search_models import BertIndex, BM25Matrices, FastTextSearch, Word2VecSea
 from ..utils.database import DBHandler
 
 
-def download_models(models_info: Dict[str, Dict[Path, str]],
+def download_models(models_info: Dict[str, Dict[str, Union[Path, str]]],
                     search_engines: Dict[str, Any]):
     """
     Скачивает модели в папку model_folder
     Args:
-        model_folder: папка, где будут храниться модели
         models_info: словарь вида {model_type: {'file': filename, 'source_link': link}}
             model_type - тип модели - w2v, ft
             filename - путь к модели
