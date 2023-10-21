@@ -29,8 +29,8 @@ class DictSearch(SearchEngine):
     def rank_documents(self, lemmatized_query: str, top_n: int) -> Iterable[int]:
         scores = defaultdict(int)
         for word in lemmatized_query.split():
-            if self._index.get(word):
-                for doc in self._index[word]:
-                    scores[doc] += self._index[word][doc]
+            if self.index.get(word):
+                for doc in self.index[word]:
+                    scores[doc] += self.index[word][doc]
         sorted_metric = sorted(scores.items(), key=lambda x: x[1], reverse=True)
         return [doc[0] for doc in sorted_metric[:top_n]]
