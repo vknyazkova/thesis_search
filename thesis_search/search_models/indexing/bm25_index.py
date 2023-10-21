@@ -13,7 +13,11 @@ from ..base.dict_search import DictSearch
 
 class BM25Matrices(MatrixSearch):
     """
-    Реализация бм25 индекса через матрицы
+    BM25 index implemented throgh matrices
+    Attributes:
+        k, b: free paramenters from Okapi BM25 formula
+        index: bm25 index
+        _vocabulary: mapping of terms to feature indices
     """
     def __init__(self, corpus: pd.DataFrame, k: float = 2, b: float = 0.75):
         super().__init__(corpus)
@@ -22,19 +26,19 @@ class BM25Matrices(MatrixSearch):
 
         doc_term_count, self._vocabulary = self.extract_features(self.text)
         doc_term_count = doc_term_count.toarray()
-        self._index = self.compute_bm25(doc_term_count, self.k, self.b)
+        self.index = self.compute_bm25(doc_term_count, self.k, self.b)
 
     @staticmethod
     def compute_bm25(doc_term_count: np.ndarray, k: float, b: float) -> np.ndarray:
         """
-        Подсчитывает значения бм25 для всего корпуса
+        Computes bm25 value for every pair (term, doc) in the corpus
         Args:
-            doc_term_count: матрица документ-терм с количеством употреблений слова в документне (n_docs, vocab_size)
-            k:
-            b:
+            doc_term_count: document-term matrix (shape=(n_docs, vocab_size)) filled with frequency
+                of the term in the document
+            k: free parameter in bm25 formula
+            b: free parameter in bm25 formula
 
-        Returns: подсчитанные бм25 значения в виде матрицы размером (n_docs, vocab_size)
-
+        Returns: document-term matrix (shape=(n_docs, vocab_size)) filled with bm25(term, doc) values
         """
         N = doc_term_count.shape[0]
 
@@ -59,7 +63,15 @@ class BM25Matrices(MatrixSearch):
 
 class BM25Dict(DictSearch):
     """
-    Класс для поиска при помощи словаря bm25
+    BM25 implemented through dictionary
+    Attributes:
+        k, b: free parameters of bm25 formula
+        N: number of documents in the corpus
+        docs_len: lengths of documents in the corpus
+        avg_len: average len of the documents in the corpus
+        _tf: term frequency in the form of {term: {doc: tf(t, d)}}
+        _idf: inverse document frequency in the form of {doc: idf(d, N)}
+        index: {term: {doc_idx: bm25(t, d)}}
     """
     def __init__(self, corpus: pd.DataFrame, k: float = 2, b: float = 0.75):
         super().__init__(corpus)
@@ -72,7 +84,7 @@ class BM25Dict(DictSearch):
 
         self._tf = self._compute_tf()
         self._idf = self._compute_idf()
-        self._index = self.compute_bm25()
+        self.index = self.compute_bm25()
 
     def _compute_tf(self) -> Dict[str, Dict[int, float]]:
         tf = defaultdict(lambda: defaultdict(int))
@@ -93,7 +105,7 @@ class BM25Dict(DictSearch):
     def bm25_formula(tf: float, idf: float, k: float, b: float, doc_len: int, avg_len: float):
         return idf * (tf * (k + 1)) / (tf + k * (1 - b + b * doc_len / avg_len))
 
-    def compute_bm25(self):
+    def compute_bm25(self) -> Dict[str, Dict[int, float]]:
         bm25 = defaultdict(lambda: defaultdict(float))
         for w in self._tf:
             for doc in self._tf[w]:
@@ -110,7 +122,9 @@ class BM25Dict(DictSearch):
 
 
 class BM25Search(SearchEngine):
-    """Класс для поиска при помощи bm25, реализованного в библиотеке rank_bm25"""
+    """
+    Search based on bm25 implemented in rank_bm25 library
+    """
     def __init__(self, corpus: pd.DataFrame):
         super().__init__(corpus)
         self.doc_idx = self.doc_idx.tolist()

@@ -12,6 +12,14 @@ from .search_engine import SearchEngine
 
 
 class EmbeddingSearch(SearchEngine):
+    """
+    Search in the index based on document embeddings
+    Attributes:
+        loaded: dictionary of loaded vector_models attributes {model_name: {attr: val}}
+        model_name: name of pre-trained vector-model
+        similarity: metric that is used to compute relevance od the document to the query
+
+    """
     loaded = defaultdict(dict)  # информация о загруженных моделях
 
     def __init__(self,
@@ -32,7 +40,8 @@ class EmbeddingSearch(SearchEngine):
     @abstractmethod
     def register_model(self):
         """
-        Регистрирует модель в loaded, чтобы повторно не загружать уже существующую модель
+        Adds model to loaded
+
         """
         ...
 
@@ -41,16 +50,14 @@ class EmbeddingSearch(SearchEngine):
         Saves precomputed index to index_path
         Args:
             index_path: path to index file
-
-        Returns:
-
         """
+
         np.savetxt(index_path, self.index)
 
     @staticmethod
     def load_index(index_path: Union[str, os.PathLike]) -> np.ndarray:
         """
-        Loads precomputed index from file
+        Loads precomputed index from the file
         Args:
             index_path: path to index file
 
@@ -62,7 +69,7 @@ class EmbeddingSearch(SearchEngine):
     @property
     def index(self):
         """
-        Матрица с векторизованными документами
+        Matrix of vectorized documents
         # shape = (n_docs, emb_size)
         """
         return self.loaded[self.model_name]['index']
@@ -91,12 +98,12 @@ class EmbeddingSearch(SearchEngine):
     @staticmethod
     def cosine_similarity(documents: np.ndarray, query_vector: np.ndarray) -> np.ndarray:
         """
-        Считает косинусную близость между документами и запросом
+        Computed cosine similarity of documents and the query
         Args:
-            documents: матрица размером (n_docs, emb_size)
-            query_vector: вектор запроса размером (emb_size, 1)
+            documents: document embeddings shape=(n_docs, emb_size)
+            query_vector: query vector shape=(emb_size, 1)
 
-        Returns: вектор со значением косинусных близостей размером (n_docs, 1)
+        Returns: vector filled with values of documents' cosine similarities shape=(n_docs, 1)
 
         """
         return (documents @ query_vector) / (
@@ -106,12 +113,12 @@ class EmbeddingSearch(SearchEngine):
     @staticmethod
     def dot_prod_similarity(documents: np.ndarray, query_vector: np.ndarray) -> np.ndarray:
         """
-        Считает скалярное произведение между документами и запросом
+        Computes dot-product of document and query vectors
         Args:
-            documents: матриуа размером (n_docs, emb_size)
-            query_vector: вектор запроса размером (emb_size, 1)
+            documents: document embeddings shape=(n_docs, emb_size)
+            query_vector: query vector shape=(emb_size, 1)
 
-        Returns: вектор со значением скалярного произведения размером (n_docs, 1)
+        Returns: dot-product results shape=(n_docs, 1)
 
         """
         return documents @ query_vector
@@ -119,8 +126,8 @@ class EmbeddingSearch(SearchEngine):
     @abstractmethod
     def compute_index(self) -> np.ndarray:
         """
-        Indexes corpus documents
-        Returns: numpy ndarray with shape (n_docs, emb_size)
+        Computes index for corpus documents
+        Returns: numpy ndarray with the shape = (n_docs, emb_size)
 
         """
         ...
@@ -128,11 +135,11 @@ class EmbeddingSearch(SearchEngine):
     @abstractmethod
     def vectorize(self, text: str) -> np.ndarray:
         """
-        Метод векторизующии текста
+        Computes embedding of the document
         Args:
-            text: текст в виде строки
+            text: text as a string
 
-        Returns: вектор размером (emb_size, 1)
+        Returns: vector with size = (emb_size, 1)
 
         """
         ...

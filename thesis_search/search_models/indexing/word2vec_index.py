@@ -78,7 +78,7 @@ class Word2VecSearch(EmbeddingSearch):
         Downloads model from the url
         Args:
             url: download link
-            model_path: path to the model
+            model_path: path to the downloaded model
 
         Returns: path to the model
 

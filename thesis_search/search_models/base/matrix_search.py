@@ -9,7 +9,10 @@ from .search_engine import SearchEngine
 
 class MatrixSearch(SearchEngine):
     """
-    Базовая имлементация для поиска через матрицы
+    Search in the index, implemented through matrices
+    Attributes:
+        index: index in the form of sparse matrix
+        _vocabulary: mapping of terms to feature indices
     """
     def __init__(self, corpus: pd.DataFrame):
         super().__init__(corpus)
@@ -19,8 +22,7 @@ class MatrixSearch(SearchEngine):
     @property
     def index(self):
         """
-        Матрица значения метрики для каждой пары (документ, слово)
-        # shape = (n_docs, vocab_size)
+        Document-term matrix (shape=(n_docs, vocab_size)) filled with metric values
         """
         return self._index
 
@@ -31,14 +33,13 @@ class MatrixSearch(SearchEngine):
     @staticmethod
     def extract_features(docs: Iterable[str]) -> Tuple[csr_array, Dict[str, int]]:
         """
-        Получает вектор признаков для каждого документа, где признак - сколько раз слово
-        встретилось в документе
+        Convert a collection of text documents to a matrix of term counts.
         Args:
-            docs: список документов в корпусе
+            docs: sequence of texts
 
         Returns: index, vocabulary
-            index: частотный индекс для документов в формате csr_array
-            vocabulary: словарь соответствий меджу словом и индексом соответствующего признанка
+            index: document-term matrix
+            vocabulary: mapping of terms to feature indices
 
         """
         indptr = [0]  # куммулятивная сумма ненулевых элементов для каждой строки
@@ -56,12 +57,12 @@ class MatrixSearch(SearchEngine):
 
     def vectorize_query(self, query: str) -> np.ndarray:
         """
-        Представляет запрос в виде вектора размером (размер_словаря, 1),
-        где на позициях слов из запроса стоят 1, а в остальных местах нули
+        Transforms query into vector of size (vocab_size, 1), where 1 means that word is in the query
+        and 0 that word was not found in the query
         Args:
-            query: лемматизировнный запрос в виде строки
+            query: lemmatized query in the form of string
 
-        Returns: вектор запроса
+        Returns: query vector
 
         """
         query_idx = []
