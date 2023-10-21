@@ -4,6 +4,8 @@ import yaml
 
 
 HOME_PATH = Path(__file__).resolve().parent.parent
+
+
 with open(Path(HOME_PATH, 'config.yml'), 'r') as file:
     config = yaml.safe_load(file)
 

@@ -63,8 +63,8 @@ def init_defaults() -> Tuple[DBHandler,
     }
 
     default_params = {
-        'bm25': {'k': MODEL_DEFAULT_PARAMS['bm25']['k'],
-                 'b': MODEL_DEFAULT_PARAMS['bm25']['b']},
+        'bm25': {'k': float(MODEL_DEFAULT_PARAMS['bm25']['k']),
+                 'b': float(MODEL_DEFAULT_PARAMS['bm25']['b'])},
         'w2v': {'nlp_': fast_nlp,
                 'model_path': MODEL_DEFAULT_PARAMS['w2v']['file'],
                 'model_name_': MODEL_DEFAULT_PARAMS['w2v']['file'].stem,

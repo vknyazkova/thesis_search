@@ -7,27 +7,28 @@ from rich.console import Console
 from .. import DATA_FOLDER_PATH, LM_PATH, INDEX_TYPES, MODEL_DEFAULT_PARAMS
 from ..search import search_theses
 from ..utils.utils import download_models, init_defaults, pprint_result
-from .cli_utils import pretty_table, table_config, pandas_to_rich_table
+from .cli_utils import pretty_table, table_config, pandas_to_rich_table, change_config
 
 app = typer.Typer()
 console = Console()
 
 db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
+downloadable_models = [m for m in MODEL_DEFAULT_PARAMS if MODEL_DEFAULT_PARAMS[m].get('source_link')]
 
 
-@app.command(help='Ищет документы в корпусе по запросу')
+@app.command(help='Search documents relevant to the query')
 def search(query: str,
            idx_type: str = typer.Option(
                default='bm25',
-               help=f"Способ индексирования {list(INDEX_TYPES.keys())}"
+               help=f"Index type, one of: {list(INDEX_TYPES.keys())}"
            ),
            n: int = typer.Option(
                default=1,
-               help='Количество документов в выдаче'
+               help='Number of documents in the result'
            ),
            style: str = typer.Option(
                default='text',
-               help='Стиль вывода - text или table'
+               help='Output style: plain text or table'
            )):
 
     if idx_type not in INDEX_TYPES:
@@ -48,7 +49,7 @@ def search(query: str,
         pprint_result(results)
 
 
-@app.command(help='Показывает статистику по реализованным методам поиска: время и память')
+@app.command(help='Show statistics of corpus search methods: time and memory')
 def stats():
     time_stats = pd.read_csv(Path(DATA_FOLDER_PATH, 'time_statistics.csv'), header=0, index_col=0)
     memory_stats = pd.read_csv(Path(DATA_FOLDER_PATH, 'memory_statistics.csv'), header=0, index_col=0)
@@ -62,24 +63,32 @@ def stats():
     console.print(memory_table)
 
 
-@app.command(help="Показывает текущие конфигурации")
+@app.command(help="Show models' configurations")
 def show_config():
-    tables = table_config(default_params)
+    tables = table_config(MODEL_DEFAULT_PARAMS)
     for t in tables:
         console.print(t)
 
-@app.command(help="Изменение дефолтных конфигураций")
-def change_config():
-    ...
+
+@app.command(help="Change model config")
+def change_model_config(
+        model_type: str = typer.Argument(..., help=f'Model type: {list(MODEL_DEFAULT_PARAMS.keys())}'),
+        config_name: str = typer.Argument(..., help=f'Config name to change '
+                                                    f'(to see the available configs use command show-config)'),
+        config_value: str = typer.Argument(..., help=f'New value for selected config')
+):
+    changed = change_config(model_type, config_name, config_value)
+    tables = table_config({model_type: changed})
+    for t in tables:
+        console.print(t)
 
 
-@app.command(help="Скачивает векторную модель модель")
-def download(model_type: str = typer.Argument(..., help='Какая модель - w2v или ft'),
+@app.command(help="Download vector model")
+def download(model_type: str = typer.Argument(..., help=f'Модель одна из: {downloadable_models}'),
              source_link: str = typer.Option(default=None,
                                              help='Ссылка на скачивание модели, если нет, то скачается дефолтная')):
-    static_vector_models = [m for m in MODEL_DEFAULT_PARAMS if MODEL_DEFAULT_PARAMS[m].get('source_link')]
-    if model_type not in static_vector_models:
-        raise ValueError(f'Can work only with {static_vector_models}')
+    if model_type not in downloadable_models:
+        raise ValueError(f'Can work only with {downloadable_models}')
 
     if not source_link:
         source_link = MODEL_DEFAULT_PARAMS[model_type]['source_link']
