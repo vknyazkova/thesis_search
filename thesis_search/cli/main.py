@@ -6,7 +6,7 @@ import typer
 from rich.console import Console
 
 from .. import DATA_FOLDER, INDEX_TYPES, MODEL_DEFAULTS, INDEX_FOLDER
-from ..search_models.search_engine import SearchEngine, download_model
+from ..search_models.search_engine import SearchEngine
 from ..utils.utils import pprint_result
 from ..utils.database import DBHandler
 from .cli_utils import pretty_table, table_config, pandas_to_rich_table, change_config, remove_index_from_config, add_index_to_config
@@ -120,7 +120,7 @@ def download(model_type: str = typer.Argument(..., help=f'One of the following m
         filename = MODEL_DEFAULTS[model_type]['model_path']
     else:
         filename = Path(source_link).with_suffix('.bin')
-    download_model(model_type, filename, source_link)
+    SearchEngine.download_model(model_type, filename, source_link)
 
 
 if __name__ == "__main__":

@@ -14,6 +14,8 @@ from .indexing import *
 class SearchEngine:
 
     nlp = spacy.load("ru_core_news_sm", exclude=["ner"])
+    downloadable = {'w2v': Word2VecSearch,
+                    'ft': FastTextSearch}
 
     def __init__(self,
                  index_type: str,
@@ -144,6 +146,16 @@ class SearchEngine:
                 lemmatized.append(token.lemma_.lower())
         return ' '.join(lemmatized)
 
+    @classmethod
+    def download_model(cls,
+                       idx_type: str,
+                       model_path: Union[str, os.PathLike],
+                       url: str):
+        if idx_type in cls.downloadable:
+            cls.downloadable[idx_type].download_model(url, model_path)
+        else:
+            raise ValueError('Wrong index type')
+
     def search(self, query, n):
         lemmatized_query = self.preprocessor(query)
         if not lemmatized_query:
@@ -159,14 +171,3 @@ class QueryError(Exception):
 
     def __str__(self):
         return self.message
-
-
-def download_model(idx_type: str,
-                   model_path: Union[str, os.PathLike],
-                   url: str):
-    if idx_type == 'w2v':
-        Word2VecSearch.download_model(url, model_path)
-    elif idx_type == 'ft':
-        FastTextSearch.download_model(url, model_path)
-    else:
-        raise ValueError('Wrong index type')
