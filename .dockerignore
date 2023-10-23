@@ -29,3 +29,9 @@ venv.bak/
 *.bin
 
 scripts/
+
+data/vector_models/
+
+README.md
+
+docs/
