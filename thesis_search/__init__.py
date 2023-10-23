@@ -2,7 +2,6 @@ from pathlib import Path
 
 import yaml
 
-
 HOME_PATH = Path(__file__).resolve().parent.parent
 
 
@@ -19,13 +18,14 @@ DATA_FOLDER_PATH = config['folders']['data_folder']
 INDEX_PATH = config['folders']['index_folder']
 LM_PATH = config['folders']['lm_folder']
 
-INDEX_TYPES = config['index_types']
+INDEX_TYPES = {m: info['name'] for m, info in config['models_defaults'].items()}
 
 MODEL_DEFAULT_PARAMS = config['models_defaults']
 for m in ['w2v', 'ft']:
-    if not Path(MODEL_DEFAULT_PARAMS[m]['file']).is_absolute():
-        MODEL_DEFAULT_PARAMS[m]['file'] = Path(LM_PATH, MODEL_DEFAULT_PARAMS[m]['file']).resolve()
+    if not Path(MODEL_DEFAULT_PARAMS[m]['filepath']).is_absolute():
+        MODEL_DEFAULT_PARAMS[m]['filepath'] = Path(LM_PATH, MODEL_DEFAULT_PARAMS[m]['filepath']).resolve()
     else:
-        MODEL_DEFAULT_PARAMS[m]['file'] = Path(MODEL_DEFAULT_PARAMS[m]['file'])
+        MODEL_DEFAULT_PARAMS[m]['filepath'] = Path(MODEL_DEFAULT_PARAMS[m]['filepath'])
 
-
+if __name__ == '__main__':
+    print(config)

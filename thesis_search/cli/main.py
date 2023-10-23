@@ -7,7 +7,7 @@ from rich.console import Console
 from .. import DATA_FOLDER_PATH, LM_PATH, INDEX_TYPES, MODEL_DEFAULT_PARAMS
 from ..search import search_theses
 from ..utils.utils import download_models, init_defaults, pprint_result
-from .cli_utils import pretty_table, table_config, pandas_to_rich_table, change_config
+from .cli_utils import pretty_table, table_config, pandas_to_rich_table, change_config, remove_model_from_config
 
 app = typer.Typer()
 console = Console()
@@ -81,6 +81,14 @@ def change_model_config(
     tables = table_config({model_type: changed})
     for t in tables:
         console.print(t)
+
+
+@app.command(help="Remove model")
+def remove_model(
+    model_type: str = typer.Argument(..., help=f'Model type: {list(MODEL_DEFAULT_PARAMS.keys())}')
+):
+    models_left = remove_model_from_config(model_type)
+    print(f'Available models: {models_left}')
 
 
 @app.command(help="Download vector model")
