@@ -1,34 +1,59 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/iHpKfUUO)
+# How to install
+## Using python
+__Clone repository:__
 
-# Как запускать
-__Способ первый - с помощью cli__
-1. Скачать репозиторий </br>
-(все далее - из корневой папки)
-2. Установить нужные библиотеки ```pip install -r requirements.txt```
-3. Скачать нужные модели с помощью команды ```python -m thesis_search download IDX-TYPE```</br>
-   ```IDX-TYPE``` - тип индекса (w2v, ft)
-4. Выполнить команду  ```python -m thesis_search search QUERY --idx-type IDX-TYPE --n N --style STYLE``` </br>
-   ```QUERY``` - текст запроса (в случае запроса из нескольких слов написать в кавычках)</br>
-   ```IDX-TYPE``` - тип индекса (bm25, w2v, ft)</br>
-   ```N``` - число документов в выдаче</br>
-   ```STYLE``` - как выводить документы (в виде текста - text или в виде таблицы - table)</br>
-   
-Еще в cli есть комманда ```stats``` которая покажет статистику по способам индексации (время и память): ```python -m thesis_search stats```</br>
+either using command line 
+```
+git clone git@github.com:vknyazkova/thesis_search.git <local-path>
+```
+or using github desktop: ```Current repository``` -> ```Add``` ->```Clone repository...``` -> ```URL``` -> enter repo path https://github.com/vknyazkova/thesis_search -> select local path -> ```Clone``` </br>
 
-__Способ второй - запустить скрипт search__ </br>
-_Для количества запросов больше одного - более предпочтителен, так как он едининожды инициалиализирует все переменные, а потом в цикле происходит поиск - в результатет время обработки каждого запроса сильно ниже_
-1. Скачать репозиторий </br>
-(все далее - из корневой папки)
-2. Установить нужные библиотеки ```pip install -r requirements.txt```
-3. Запустить скрипт с помощью ```python -m thesis_search.search```
-4. Следовать инструкциям в консоли (тут тоже можно будет ввести запрос, выбрать тип индекса и количество документов в выдаче)
+__Open terminal in repository's root directory__
 
-# Как устроен репозиторий
-- В папке [data](/data) лежат все данные, связанные с корпусом - база данных, файлы со статистикой и папки с предпосчитанными индексами и с векторными моделями
-- В папке [scripts](/scripts) лежат тетрадки, которые использовались для создания/изменения корпуса и для подсчета статистики
-- Папка [thesis_search](/thesis_search) это пакет, содержащий всю кодовую часть для поиска
-  - [cli](/thesis_search/cli) содержит интерфейс коммандной строки
-  - [utils](/thesis_search/utils) содержит модуль со вспомогательными функциями и модуль для работы с базой данных
-  - [search_models](/thesis_search/search_models) содержит модели для поиска
-    - [base](/thesis_search/search_models/base) - здесь лежат абстрактные классы
-    - [indexing](/thesis_search/search_models/base) - классы с реализацией конкретного типа индекса
+__Install libraries:__ 
+```
+pip install -r requirements.txt
+```
+
+__[Download](docs/cli.md#download) vector models__ 
+```
+python -m thesis_search download w2v
+python -m thesis_search download ft
+```
+or [change config](docs/cli.md#change-model-config) to match path to the existing vector models 
+```
+python -m thesis_search change-model-config w2v model_path <absolute-path-to-w2v-model>
+python -m thesis_search change-model-config ft model_path <absolute-path-to-ft-model>
+```
+(or do nothing and just follow hints during execution)
+
+__Search__
+
+either using web interface:
+```
+python -m thesis_search.webui.app
+```
+or using cli [search](docs/cli.md#search):
+```
+python -m thesis_search search QUERY --idx-type IDX-TYPE --n N --style STYLE
+```
+
+## Using docker
+If you have docker installed, you can run web app simply running the following in the terminal:
+```shell
+docker run --name thesis_search -p 5000:5000
+```
+By default, container only works with bm25 index. But you can also add freq and w2v index. (You can also try to add 
+fasttext and bert index, but it is most likely that you won't have enough RAM for this.) For indices that do not need downloaded
+.bin files you can just add them to models in config.yml (either manually or using cli) and restart container. 
+For indices like w2v and ft you will also need downloaded .bin files. There you have 2 options: download model to 
+container using cli or mount directory on you computer that stores those .bin files. </br>
+To download model go to ```Containers``` tab, then select ```thesis_search``` container, ```Exec``` tab and enter 
+```python -m thesis_search download w2v``` (see. cli [docs](docs/cli.md#download)), then add index to config.yml
+(```python -m thesis_search add-index w2v --name word2vec```) and restart container (```docker stop thesis_search```, 
+```docker start thesis_search```).</br>
+To mount directory stop container, remove it (```docker rm thesis_search```), 
+then run it again mounting directory where you store your models to the directory in container where
+code expects to find those models (by default - /usr/src/thesis_search/data/vector_models)
+```docker run -v <path-to-folder-with-models>:/usr/src/thesis_search/data/vector_models -p 5000:5000 thesis_search```. 
+After that add index to config and restart container
