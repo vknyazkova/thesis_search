@@ -1,3 +1,5 @@
+__all__ = ['Word2VecSearch']
+
 import os
 import tempfile
 import urllib.request

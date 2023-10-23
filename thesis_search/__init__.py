@@ -4,7 +4,6 @@ import yaml
 
 HOME_PATH = Path(__file__).resolve().parent.parent
 
-
 with open(Path(HOME_PATH, 'config.yml'), 'r') as file:
     config = yaml.safe_load(file)
 
@@ -14,18 +13,18 @@ for t, folder in config['folders'].items():
     else:
         config['folders'][t] = Path(folder)
 
-DATA_FOLDER_PATH = config['folders']['data_folder']
-INDEX_PATH = config['folders']['index_folder']
-LM_PATH = config['folders']['lm_folder']
+DATA_FOLDER = config['folders']['data_folder']
+INDEX_FOLDER = config['folders']['index_folder']
+LM_FOLDER = config['folders']['lm_folder']
 
-INDEX_TYPES = {m: info['name'] for m, info in config['models_defaults'].items()}
+INDEX_TYPES = {k: v for k, v in config['models'].items()}
 
-MODEL_DEFAULT_PARAMS = config['models_defaults']
+MODEL_DEFAULTS = config['defaults']
 for m in ['w2v', 'ft']:
-    if not Path(MODEL_DEFAULT_PARAMS[m]['filepath']).is_absolute():
-        MODEL_DEFAULT_PARAMS[m]['filepath'] = Path(LM_PATH, MODEL_DEFAULT_PARAMS[m]['filepath']).resolve()
+    if not Path(MODEL_DEFAULTS[m]['model_path']).is_absolute():
+        MODEL_DEFAULTS[m]['model_path'] = Path(LM_FOLDER, MODEL_DEFAULTS[m]['model_path']).resolve()
     else:
-        MODEL_DEFAULT_PARAMS[m]['filepath'] = Path(MODEL_DEFAULT_PARAMS[m]['filepath'])
+        MODEL_DEFAULTS[m]['model_path'] = Path(MODEL_DEFAULTS[m]['model_path'])
 
 if __name__ == '__main__':
     print(config)

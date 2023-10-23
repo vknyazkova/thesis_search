@@ -1,3 +1,5 @@
+__all__ = ['BM25Matrices', 'BM25Dict', 'BM25Search']
+
 from collections import defaultdict
 from math import log
 from typing import Dict, Iterable
@@ -6,7 +8,7 @@ import numpy as np
 import pandas as pd
 from rank_bm25 import BM25Okapi
 
-from ..base.search_engine import SearchEngine
+from ..base.search_engine import BaseSearch
 from ..base.matrix_search import MatrixSearch
 from ..base.dict_search import DictSearch
 
@@ -121,7 +123,7 @@ class BM25Dict(DictSearch):
         return bm25
 
 
-class BM25Search(SearchEngine):
+class BM25Search(BaseSearch):
     """
     Search based on bm25 implemented in rank_bm25 library
     """

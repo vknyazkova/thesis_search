@@ -1,19 +1,20 @@
-import typer
 from pathlib import Path
+from typing import List
 
 import pandas as pd
+import typer
 from rich.console import Console
 
-from .. import DATA_FOLDER_PATH, LM_PATH, INDEX_TYPES, MODEL_DEFAULT_PARAMS
-from ..search import search_theses
-from ..utils.utils import download_models, init_defaults, pprint_result
-from .cli_utils import pretty_table, table_config, pandas_to_rich_table, change_config, remove_model_from_config
+from .. import DATA_FOLDER, INDEX_TYPES, MODEL_DEFAULTS, INDEX_FOLDER
+from ..search_models.search_engine import SearchEngine, download_model
+from ..utils.utils import pprint_result
+from ..utils.database import DBHandler
+from .cli_utils import pretty_table, table_config, pandas_to_rich_table, change_config, remove_index_from_config, add_index_to_config
 
 app = typer.Typer()
 console = Console()
-
-db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
-downloadable_models = [m for m in MODEL_DEFAULT_PARAMS if MODEL_DEFAULT_PARAMS[m].get('source_link')]
+db = DBHandler(Path(DATA_FOLDER, 'theses.db'))
+downloadable_models = [m for m in MODEL_DEFAULTS if MODEL_DEFAULTS[m].get('source_link')]
 
 
 @app.command(help='Search documents relevant to the query')
@@ -35,11 +36,18 @@ def search(query: str,
         raise ValueError(f'Index type can be only one of those {list(INDEX_TYPES.keys())}')
 
     try:
-        search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
+        search_engine = SearchEngine(
+            index_type=idx_type,
+            implementation=MODEL_DEFAULTS[idx_type]['implementation'],
+            index_folder=INDEX_FOLDER,
+            data_retriever=db,
+            defaults=MODEL_DEFAULTS[idx_type],
+            preprocessor=MODEL_DEFAULTS[idx_type]['preprocessor_']
+        )
     except FileNotFoundError:
         raise FileNotFoundError(f'Модель для этого способа индексации еще не скачена. Запустите команду '
                                 f'"python -m thesis_search download {idx_type}", а потом попробуйте еще раз')
-    results = search_theses(query=query, preprocess=preprocess[idx_type], search_engine=search_engine, db=db, n=n)
+    results = search_engine.search(query, n)
 
     if style == 'table':
         for result in results:
@@ -51,8 +59,8 @@ def search(query: str,
 
 @app.command(help='Show statistics of corpus search methods: time and memory')
 def stats():
-    time_stats = pd.read_csv(Path(DATA_FOLDER_PATH, 'time_statistics.csv'), header=0, index_col=0)
-    memory_stats = pd.read_csv(Path(DATA_FOLDER_PATH, 'memory_statistics.csv'), header=0, index_col=0)
+    time_stats = pd.read_csv(Path(DATA_FOLDER, 'time_statistics.csv'), header=0, index_col=0)
+    memory_stats = pd.read_csv(Path(DATA_FOLDER, 'memory_statistics.csv'), header=0, index_col=0)
 
     time_table = pandas_to_rich_table(time_stats)
     time_table.title = 'Время (в секундах), затрачиваемое на поиск (full - вместе с инициализацией, search_only - только поиск):'
@@ -65,14 +73,14 @@ def stats():
 
 @app.command(help="Show models' configurations")
 def show_config():
-    tables = table_config(MODEL_DEFAULT_PARAMS)
+    tables = table_config(MODEL_DEFAULTS, INDEX_TYPES)
     for t in tables:
         console.print(t)
 
 
 @app.command(help="Change model config")
 def change_model_config(
-        model_type: str = typer.Argument(..., help=f'Model type: {list(MODEL_DEFAULT_PARAMS.keys())}'),
+        model_type: str = typer.Argument(..., help=f'Model type: {list(MODEL_DEFAULTS.keys())}'),
         config_name: str = typer.Argument(..., help=f'Config name to change '
                                                     f'(to see the available configs use command show-config)'),
         config_value: str = typer.Argument(..., help=f'New value for selected config')
@@ -83,29 +91,36 @@ def change_model_config(
         console.print(t)
 
 
-@app.command(help="Remove model")
-def remove_model(
-    model_type: str = typer.Argument(..., help=f'Model type: {list(MODEL_DEFAULT_PARAMS.keys())}')
+@app.command(help="Remove index type")
+def remove_indices(
+    index_types: List[str] = typer.Argument(..., help=f'Some indices from those: {list(INDEX_TYPES.keys())}')
 ):
-    models_left = remove_model_from_config(model_type)
-    print(f'Available models: {models_left}')
+    models_left = remove_index_from_config(index_types)
+    print(f'Available indices: {models_left}')
+
+
+@app.command(help="Add index type")
+def add_index(
+        index_type: str = typer.Argument(..., help=f'One of those indices: {set(MODEL_DEFAULTS.keys()) - set(INDEX_TYPES.keys())}'),
+        name: str = typer.Option(default=None, help="full name for index type")
+):
+    all_models = add_index_to_config(index_type, name)
+    print(f'Available indices: {all_models}')
 
 
 @app.command(help="Download vector model")
-def download(model_type: str = typer.Argument(..., help=f'Модель одна из: {downloadable_models}'),
+def download(model_type: str = typer.Argument(..., help=f'One of the following model type: {downloadable_models}'),
              source_link: str = typer.Option(default=None,
-                                             help='Ссылка на скачивание модели, если нет, то скачается дефолтная')):
+                                             help='Download link, if there are any the default model (from config) will be downloaded')):
     if model_type not in downloadable_models:
         raise ValueError(f'Can work only with {downloadable_models}')
 
     if not source_link:
-        source_link = MODEL_DEFAULT_PARAMS[model_type]['source_link']
-        filename = MODEL_DEFAULT_PARAMS[model_type]['file']
+        source_link = MODEL_DEFAULTS[model_type]['source_link']
+        filename = MODEL_DEFAULTS[model_type]['model_path']
     else:
         filename = Path(source_link).with_suffix('.bin')
-    models_info = {model_type: {'file': filename, 'source_link': source_link}}
-
-    download_models(LM_PATH, models_info, search_engines)
+    download_model(model_type, filename, source_link)
 
 
 if __name__ == "__main__":

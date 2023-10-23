@@ -8,10 +8,10 @@ import pandas as pd
 from numpy.linalg import norm
 from scipy.sparse import csr_array
 
-from .search_engine import SearchEngine
+from .search_engine import BaseSearch
 
 
-class EmbeddingSearch(SearchEngine):
+class EmbeddingSearch(BaseSearch):
     """
     Search in the index based on document embeddings
     Attributes:

@@ -4,7 +4,7 @@ from typing import Iterable
 import pandas as pd
 
 
-class SearchEngine:
+class BaseSearch:
     """
     Abstract class for search in corpus
     Attributes:

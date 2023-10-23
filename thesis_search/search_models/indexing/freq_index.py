@@ -1,15 +1,17 @@
+__all__ = ['CountVectSearch', 'FreqDict', 'FreqMatrix']
+
 from typing import Iterable, Dict, List
 from collections import defaultdict
 
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
 
-from ..base.search_engine import SearchEngine
+from ..base.search_engine import BaseSearch
 from ..base.dict_search import DictSearch
 from ..base.matrix_search import MatrixSearch
 
 
-class CountVectSearch(SearchEngine):
+class CountVectSearch(BaseSearch):
     """
     Inverted frequency index implemented through CountVectorizer of sklearn
     Attributes:

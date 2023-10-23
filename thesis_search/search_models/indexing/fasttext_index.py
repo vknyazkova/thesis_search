@@ -1,3 +1,5 @@
+__all__ = ['FastTextSearch']
+
 import gzip
 import os
 import shutil

@@ -10,7 +10,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 VOLUME ["/usr/src/thesis_search"]
-CMD ["python", "-m", "thesis_search.webui.app", "bm25", "w2v"]
+CMD ["python", "-m", "thesis_search.webui.app"]
 
 EXPOSE 5000
 

@@ -1,22 +1,32 @@
 import time
-import sys
+from pathlib import Path
 
 from flask import Flask, request, render_template
 
-from thesis_search import INDEX_TYPES
-from thesis_search.search import search_theses
-from thesis_search.utils.models import QueryError
-from thesis_search.utils.utils import init_defaults
+from thesis_search import INDEX_TYPES, DATA_FOLDER, MODEL_DEFAULTS, INDEX_FOLDER
+from thesis_search.utils.database import DBHandler
+from thesis_search.search_models.search_engine import QueryError, SearchEngine
 
 app = Flask(__name__)
-db, fast_nlp, corpus, default_params, search_engines, preprocess = init_defaults()
+db = DBHandler(Path(DATA_FOLDER, 'theses.db'))
 
 META = {'Year': 1, 'Program': 2, 'Student': 3, 'Supervisor': 4}
 N_RESULTS = 10
 
+search_engines = {}
+for idx_type in INDEX_TYPES:
+    search_engines[idx_type] = SearchEngine(
+            index_type=idx_type,
+            implementation=MODEL_DEFAULTS[idx_type]['implementation'],
+            index_folder=INDEX_FOLDER,
+            data_retriever=db,
+            defaults=MODEL_DEFAULTS[idx_type],
+            preprocessor=MODEL_DEFAULTS[idx_type]['preprocessor_']
+        )
+
 
 @app.route('/')
-def home_page():  # put application's code here
+def home_page():
     return render_template('index.html')
 
 
@@ -30,12 +40,9 @@ def results():
     if request.method == 'POST':
         idx_type = request.form['index']
         query = request.form['query']
-
-        start = time.time()
-        search_engine = search_engines[idx_type](corpus=corpus[idx_type], **default_params[idx_type])
         try:
-            results = search_theses(query=query, preprocess=preprocess[idx_type], search_engine=search_engine,
-                                                            db=db, n=N_RESULTS)
+            start = time.time()
+            results = search_engines[idx_type].search(query, N_RESULTS)
             exec_time = str(round(time.time() - start, 4)) + ' s'
         except QueryError as e:
             return render_template("result.html",
@@ -54,6 +61,4 @@ def results():
 
 
 if __name__ == '__main__':
-    if len(sys.argv) > 1:
-        INDEX_TYPES = {i: INDEX_TYPES[i] for i in sys.argv[1:]}
     app.run(host='0.0.0.0')

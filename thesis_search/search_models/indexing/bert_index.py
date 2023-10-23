@@ -1,3 +1,5 @@
+__all__ = ['BertIndex']
+
 import os
 from typing import Union, List
 from pathlib import Path

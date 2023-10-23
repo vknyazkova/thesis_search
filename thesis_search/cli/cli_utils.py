@@ -1,4 +1,4 @@
-from typing import Tuple, Dict, Any
+from typing import Tuple, Dict, Any, Iterable
 from pathlib import Path
 
 import yaml
@@ -16,9 +16,9 @@ def pretty_table(result: Tuple[str, int, str, str, str, str, str]) -> Table:
     return table
 
 
-def table_config(configs: Dict[str, dict]):
+def table_config(configs: Dict[str, dict], project_models: Iterable[str]):
     tables = []
-    for model in configs:
+    for model in project_models:
         table = Table(model)
         for k, v in configs[model].items():
             if not k.endswith('_'):
@@ -41,27 +41,46 @@ def change_config(model_type: str,
     with open(Path(HOME_PATH, 'config.yml'), 'r') as file:
         config = yaml.safe_load(file)
 
-    if model_type not in config['models_defaults']:
-        raise ValueError(f'Unknown model type, only can be one of those: {list(config["models_defaults"].keys())}')
-    if config_name not in config['models_defaults'][model_type]:
+    if model_type not in config['defaults']:
+        raise ValueError(f'Unknown model type, only can be one of those: {list(config["defaults"].keys())}')
+    if config_name not in config['defaults'][model_type]:
         raise ValueError(f"Selected model don't have such parameter, only one of those:"
                          f" {list(config['models_defaults'][model_type].keys())}")
 
-    config['models_defaults'][model_type][config_name] = new_value
+    config['defaults'][model_type][config_name] = new_value
 
     with open(Path(HOME_PATH, 'config.yml'), 'w') as f:
         yaml.dump(config, f, sort_keys=False)
 
-    return config['models_defaults'][model_type]
+    return config['defaults'][model_type]
 
 
-def remove_model_from_config(model_type: str):
+def remove_index_from_config(index_types: Iterable[str]):
     with open(Path(HOME_PATH, 'config.yml'), 'r') as file:
         config = yaml.safe_load(file)
 
-    config['models_defaults'].pop(model_type, None)
+    for index_type in index_types:
+        config['models'].pop(index_type, None)
 
     with open(Path(HOME_PATH, 'config.yml'), 'w') as f:
         yaml.dump(config, f, sort_keys=False)
 
-    return list(config['models_defaults'].keys())
+    return list(config['models'].keys())
+
+
+def add_index_to_config(index_type: str,
+                        index_name: str = None):
+    with open(Path(HOME_PATH, 'config.yml'), 'r') as file:
+        config = yaml.safe_load(file)
+
+    if index_type not in config['defaults'].keys():
+        raise ValueError('Unknown index_type')
+    if not index_name:
+        index_type = index_name
+    config['models'][index_type] = index_name
+
+    with open(Path(HOME_PATH, 'config.yml'), 'w') as f:
+        yaml.dump(config, f, sort_keys=False)
+
+    return list(config['models'].keys())
+

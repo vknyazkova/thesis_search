@@ -4,10 +4,10 @@ import numpy as np
 import pandas as pd
 from scipy.sparse import csr_array
 
-from .search_engine import SearchEngine
+from .search_engine import BaseSearch
 
 
-class MatrixSearch(SearchEngine):
+class MatrixSearch(BaseSearch):
     """
     Search in the index, implemented through matrices
     Attributes:

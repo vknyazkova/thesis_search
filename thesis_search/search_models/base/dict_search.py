@@ -3,10 +3,10 @@ from typing import Iterable, Dict
 
 import pandas as pd
 
-from .search_engine import SearchEngine
+from .search_engine import BaseSearch
 
 
-class DictSearch(SearchEngine):
+class DictSearch(BaseSearch):
     """
     Поиск при помощи частотного индекса
     """
