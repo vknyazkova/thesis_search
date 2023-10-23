@@ -80,47 +80,47 @@ def show_config():
 
 @app.command(help="Change model config")
 def change_model_config(
-        model_type: str = typer.Argument(..., help=f'Model type: {list(MODEL_DEFAULTS.keys())}'),
+        idx_type: str = typer.Argument(..., help=f'Model type: {list(MODEL_DEFAULTS.keys())}'),
         config_name: str = typer.Argument(..., help=f'Config name to change '
                                                     f'(to see the available configs use command show-config)'),
         config_value: str = typer.Argument(..., help=f'New value for selected config')
 ):
-    changed = change_config(model_type, config_name, config_value)
-    tables = table_config({model_type: changed})
+    changed = change_config(idx_type, config_name, config_value)
+    tables = table_config({idx_type: changed})
     for t in tables:
         console.print(t)
 
 
 @app.command(help="Remove index type")
 def remove_indices(
-    index_types: List[str] = typer.Argument(..., help=f'Some indices from those: {list(INDEX_TYPES.keys())}')
+    idx_types: List[str] = typer.Argument(..., help=f'Some indices from those: {list(INDEX_TYPES.keys())}')
 ):
-    models_left = remove_index_from_config(index_types)
+    models_left = remove_index_from_config(idx_types)
     print(f'Available indices: {models_left}')
 
 
 @app.command(help="Add index type")
 def add_index(
-        index_type: str = typer.Argument(..., help=f'One of those indices: {set(MODEL_DEFAULTS.keys()) - set(INDEX_TYPES.keys())}'),
+        idx_type: str = typer.Argument(..., help=f'One of those indices: {set(MODEL_DEFAULTS.keys()) - set(INDEX_TYPES.keys())}'),
         name: str = typer.Option(default=None, help="full name for index type")
 ):
-    all_models = add_index_to_config(index_type, name)
+    all_models = add_index_to_config(idx_type, name)
     print(f'Available indices: {all_models}')
 
 
 @app.command(help="Download vector model")
-def download(model_type: str = typer.Argument(..., help=f'One of the following model type: {downloadable_models}'),
+def download(idx_type: str = typer.Argument(..., help=f'One of the following model type: {downloadable_models}'),
              source_link: str = typer.Option(default=None,
                                              help='Download link, if there are any the default model (from config) will be downloaded')):
-    if model_type not in downloadable_models:
+    if idx_type not in downloadable_models:
         raise ValueError(f'Can work only with {downloadable_models}')
 
     if not source_link:
-        source_link = MODEL_DEFAULTS[model_type]['source_link']
-        filename = MODEL_DEFAULTS[model_type]['model_path']
+        source_link = MODEL_DEFAULTS[idx_type]['source_link']
+        filename = MODEL_DEFAULTS[idx_type]['model_path']
     else:
         filename = Path(source_link).with_suffix('.bin')
-    SearchEngine.download_model(model_type, filename, source_link)
+    SearchEngine.download_model(idx_type, filename, source_link)
 
 
 if __name__ == "__main__":
