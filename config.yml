@@ -6,6 +6,7 @@ models:
   bm25: bm25
   w2v: word2vec
   ft: fasttext
+  bert: bert
 defaults:
   freq:
     implementation: FreqMatrix
