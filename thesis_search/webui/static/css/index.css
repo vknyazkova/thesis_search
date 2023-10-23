@@ -192,7 +192,7 @@
 }
 .home-container09 {
   flex: 0 0 auto;
-  width: 30%;
+  width: 40%;
   height: fit-content;
   display: flex;
   padding: var(--dl-space-space-halfunit);
