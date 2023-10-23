@@ -15,6 +15,10 @@ N_RESULTS = 10
 
 search_engines = {}
 for idx_type in INDEX_TYPES:
+    if idx_type in SearchEngine.downloadable:
+        SearchEngine.download_model(idx_type,
+                                    MODEL_DEFAULTS[idx_type]['model_path'],
+                                    MODEL_DEFAULTS[idx_type]['source_link'])
     search_engines[idx_type] = SearchEngine(
             index_type=idx_type,
             implementation=MODEL_DEFAULTS[idx_type]['implementation'],

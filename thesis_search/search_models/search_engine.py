@@ -2,6 +2,7 @@ import os
 from functools import partial
 from typing import Union, Callable, Dict, Any
 import re
+from pathlib import Path
 
 import pandas as pd
 import spacy
@@ -152,7 +153,10 @@ class SearchEngine:
                        model_path: Union[str, os.PathLike],
                        url: str):
         if idx_type in cls.downloadable:
-            cls.downloadable[idx_type].download_model(url, model_path)
+            model_path = Path(model_path)
+            model_path.parent.mkdir(parents=True, exist_ok=True)
+            if not model_path.exists():
+                cls.downloadable[idx_type].download_model(url, model_path)
         else:
             raise ValueError('Wrong index type')
 
