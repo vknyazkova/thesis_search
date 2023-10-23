@@ -13,3 +13,8 @@ requests~=2.31.0
 PyYAML~=6.0.1
 rank-bm25~=0.2.2
 scikit-learn
+fasttext-wheel
+progressbar2
+ru-core-news-sm @ https://github.com/explosion/spacy-models/releases/download/ru_core_news_sm-3.5.0/ru_core_news_sm-3.5.0-py3-none-any.whl
+
+
